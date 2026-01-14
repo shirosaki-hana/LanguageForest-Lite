@@ -16,6 +16,9 @@ const OLLAMA_HOST = process.env.OLLAMA_HOST || 'localhost';
 const OLLAMA_PORT = process.env.OLLAMA_PORT || '11434';
 const OLLAMA_BASE_URL = `http://${OLLAMA_HOST}:${OLLAMA_PORT}`;
 
+// Test mode configuration
+const TEST_MODE = process.env.TEST_MODE === 'true';
+
 const MIME_TYPES = {
   '.html': 'text/html',
   '.css': 'text/css',
@@ -34,6 +37,38 @@ const MIME_TYPES = {
 };
 
 /**
+ * Pretty print request object for debugging
+ */
+function prettyPrintRequest(req, body) {
+  const timestamp = new Date().toISOString();
+  const separator = '═'.repeat(60);
+  
+  console.log('\n' + separator);
+  console.log(`[TEST MODE] Request Intercepted @ ${timestamp}`);
+  console.log(separator);
+  console.log(`URL:     ${req.url}`);
+  console.log(`Method:  ${req.method}`);
+  console.log(`Headers:`);
+  Object.entries(req.headers).forEach(([key, value]) => {
+    console.log(`   ${key}: ${value}`);
+  });
+  
+  if (body && body.length > 0) {
+    try {
+      const parsed = JSON.parse(body.toString());
+      console.log(`Body (JSON):`);
+      console.log(JSON.stringify(parsed, null, 2));
+    } catch {
+      console.log(`Body (Raw):`);
+      console.log(body.toString());
+    }
+  } else {
+    console.log(`Body: (empty)`);
+  }
+  console.log(separator + '\n');
+}
+
+/**
  * Proxy request to Ollama server
  */
 function proxyToOllama(req, res) {
@@ -45,6 +80,17 @@ function proxyToOllama(req, res) {
   req.on('data', (chunk) => body.push(chunk));
   req.on('end', () => {
     body = Buffer.concat(body);
+
+    // Test mode: intercept request, log it, and return 500 error
+    if (TEST_MODE) {
+      prettyPrintRequest(req, body);
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ 
+        error: 'Test mode enabled', 
+        message: 'Request intercepted for debugging purposes' 
+      }));
+      return;
+    }
 
     const urlObj = new URL(ollamaUrl);
     const options = {
@@ -130,4 +176,7 @@ server.listen(PORT, () => {
   const { port } = server.address();
   console.log(`Server running at http://localhost:${port}`);
   console.log(`Ollama proxy: /api/* -> ${OLLAMA_BASE_URL}/*`);
+  if (TEST_MODE) {
+    console.log('\n⚠️  TEST MODE ENABLED - All API requests will be intercepted and return 500 error');
+  }
 });
