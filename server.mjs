@@ -2,10 +2,19 @@ import http from 'http';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import dotenv from 'dotenv';
+
+// Load environment variables
+dotenv.config({quiet: true,});
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DIST_DIR = path.join(__dirname, 'dist');
 const PORT = 0;
+
+// Ollama server configuration
+const OLLAMA_HOST = process.env.OLLAMA_HOST || 'localhost';
+const OLLAMA_PORT = process.env.OLLAMA_PORT || '11434';
+const OLLAMA_BASE_URL = `http://${OLLAMA_HOST}:${OLLAMA_PORT}`;
 
 const MIME_TYPES = {
   '.html': 'text/html',
@@ -24,7 +33,57 @@ const MIME_TYPES = {
   '.eot': 'application/vnd.ms-fontobject',
 };
 
-const server = http.createServer((req, res) => {
+/**
+ * Proxy request to Ollama server
+ */
+function proxyToOllama(req, res) {
+  // Forward request path directly to Ollama (e.g., /api/chat -> http://ollama:11434/api/chat)
+  const ollamaUrl = `${OLLAMA_BASE_URL}${req.url}`;
+
+  // Collect request body
+  let body = [];
+  req.on('data', (chunk) => body.push(chunk));
+  req.on('end', () => {
+    body = Buffer.concat(body);
+
+    const urlObj = new URL(ollamaUrl);
+    const options = {
+      hostname: urlObj.hostname,
+      port: urlObj.port,
+      path: urlObj.pathname + urlObj.search,
+      method: req.method,
+      headers: {
+        ...req.headers,
+        host: `${OLLAMA_HOST}:${OLLAMA_PORT}`,
+      },
+    };
+
+    const proxyReq = http.request(options, (proxyRes) => {
+      // Forward status code and headers from Ollama
+      res.writeHead(proxyRes.statusCode, proxyRes.headers);
+
+      // Stream the response directly to client
+      proxyRes.pipe(res);
+    });
+
+    proxyReq.on('error', (err) => {
+      console.error('Proxy error:', err.message);
+      res.writeHead(502, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Failed to connect to Ollama server', details: err.message }));
+    });
+
+    // Send request body if present
+    if (body.length > 0) {
+      proxyReq.write(body);
+    }
+    proxyReq.end();
+  });
+}
+
+/**
+ * Serve static files
+ */
+function serveStatic(req, res) {
   let urlPath = req.url.split('?')[0];
 
   if (urlPath === '/') {
@@ -56,9 +115,19 @@ const server = http.createServer((req, res) => {
       res.end(data);
     }
   });
+}
+
+const server = http.createServer((req, res) => {
+  // Route /api/* requests to Ollama proxy
+  if (req.url.startsWith('/api')) {
+    proxyToOllama(req, res);
+  } else {
+    serveStatic(req, res);
+  }
 });
 
 server.listen(PORT, () => {
   const { port } = server.address();
-  console.log(`http://localhost:${port}`);
+  console.log(`Server running at http://localhost:${port}`);
+  console.log(`Ollama proxy: /api/* -> ${OLLAMA_BASE_URL}/*`);
 });

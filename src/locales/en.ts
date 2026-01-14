@@ -2,7 +2,7 @@ export default {
   translation: {
     // Common
     common: {
-      appName: 'TemplateForest',
+      appName: 'Ollama Translator',
       loading: 'Loading...',
       error: 'Error',
       success: 'Success',
@@ -12,6 +12,8 @@ export default {
       refresh: 'Refresh',
       saving: 'Saving...',
       rowsPerPage: 'Rows per page',
+      copy: 'Copy',
+      clear: 'Clear',
     },
 
     // Dialog
@@ -19,12 +21,6 @@ export default {
       notice: 'Notice',
       confirm: 'Confirm',
       confirmButton: 'OK',
-    },
-
-    // Welcome
-    welcome: {
-      subtitle: 'Application Template',
-      description: 'A base template. Add your own features on top of this template.',
     },
 
     // Settings
@@ -41,6 +37,30 @@ export default {
         ko: '한국어',
         en: 'English',
       },
+    },
+
+    // Translate
+    translate: {
+      subtitle: 'Privacy-preserving translation with local LLM',
+      modelSelect: 'Select Model',
+      modelLoading: 'Loading models...',
+      noModels: 'No models available',
+      sourceLang: '한국어',
+      targetLang: 'English',
+      placeholder: 'Enter text to translate...',
+      resultPlaceholder: 'Translation will appear here',
+      translating: 'Translating...',
+      translateButton: 'Translate',
+      stopButton: 'Stop',
+      // Snackbar messages
+      copySuccess: 'Copied to clipboard.',
+      copyError: 'Failed to copy.',
+      noModelWarning: 'Please select a model.',
+      noTextWarning: 'Please enter text to translate.',
+      noModelsWarning: 'No models available. Please install a model in Ollama.',
+      loadModelsError: 'Failed to load models. Please check if Ollama server is running.',
+      translateError: 'An error occurred during translation.',
+      translateStopped: 'Translation stopped.',
     },
   },
 };

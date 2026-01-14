@@ -2,7 +2,7 @@ export default {
   translation: {
     // Common
     common: {
-      appName: 'TemplateForest',
+      appName: 'Ollama 번역기',
       loading: '로딩 중...',
       error: '오류',
       success: '성공',
@@ -12,6 +12,8 @@ export default {
       refresh: '새로고침',
       saving: '저장 중...',
       rowsPerPage: '페이지당 행',
+      copy: '복사',
+      clear: '지우기',
     },
 
     // Dialog
@@ -19,12 +21,6 @@ export default {
       notice: '알림',
       confirm: '확인',
       confirmButton: '확인',
-    },
-
-    // Welcome
-    welcome: {
-      subtitle: '템플릿',
-      description: '기본 템플릿입니다. 이 템플릿을 기반으로 원하는 기능을 추가해보세요.',
     },
 
     // Settings
@@ -41,6 +37,30 @@ export default {
         ko: '한국어',
         en: 'English',
       },
+    },
+
+    // Translate
+    translate: {
+      subtitle: '로컬 LLM으로 프라이버시를 지키는 번역',
+      modelSelect: '모델 선택',
+      modelLoading: '모델 불러오는 중...',
+      noModels: '사용 가능한 모델이 없습니다',
+      sourceLang: '한국어',
+      targetLang: 'English',
+      placeholder: '번역할 텍스트를 입력하세요...',
+      resultPlaceholder: '번역문이 여기에 표시됩니다',
+      translating: '번역 중...',
+      translateButton: '번역하기',
+      stopButton: '번역 중단',
+      // 스낵바 메시지
+      copySuccess: '복사되었습니다.',
+      copyError: '복사에 실패했습니다.',
+      noModelWarning: '모델을 선택해주세요.',
+      noTextWarning: '번역할 텍스트를 입력해주세요.',
+      noModelsWarning: '사용 가능한 모델이 없습니다. Ollama에 모델을 설치해주세요.',
+      loadModelsError: '모델 목록을 불러오는데 실패했습니다. Ollama 서버가 실행 중인지 확인해주세요.',
+      translateError: '번역 중 오류가 발생했습니다.',
+      translateStopped: '번역이 중단되었습니다.',
     },
   },
 };
