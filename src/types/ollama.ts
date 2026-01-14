@@ -54,3 +54,18 @@ export interface OllamaChatStreamChunk {
   eval_count?: number;
   eval_duration?: number;
 }
+
+// /api/generate 요청
+export interface OllamaGenerateRequest {
+  model: string;
+  prompt: string;
+  stream?: boolean;
+}
+
+// /api/generate 응답
+export interface OllamaGenerateResponse {
+  model: string;
+  created_at: string;
+  response: string;
+  done: boolean;
+}

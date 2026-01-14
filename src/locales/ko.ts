@@ -39,6 +39,15 @@ export default {
       },
     },
 
+    // History
+    history: {
+      title: '번역 히스토리',
+      empty: '번역 히스토리가 없습니다.',
+      delete: '삭제',
+      clearAll: '전체 삭제',
+      clearConfirm: '모든 번역 히스토리를 삭제하시겠습니까?',
+    },
+
     // Translate
     translate: {
       subtitle: '로컬 LLM으로 프라이버시를 지키는 번역',

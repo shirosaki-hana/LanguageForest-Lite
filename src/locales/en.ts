@@ -39,6 +39,15 @@ export default {
       },
     },
 
+    // History
+    history: {
+      title: 'Translation History',
+      empty: 'No translation history.',
+      delete: 'Delete',
+      clearAll: 'Clear All',
+      clearConfirm: 'Are you sure you want to clear all translation history?',
+    },
+
     // Translate
     translate: {
       subtitle: 'Privacy-preserving translation with local LLM',

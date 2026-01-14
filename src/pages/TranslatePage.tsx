@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Box,
@@ -24,14 +24,18 @@ import {
   Stop as StopIcon,
   SwapHoriz as SwapIcon,
   Settings as SettingsIcon,
+  History as HistoryIcon,
 } from '@mui/icons-material';
 import { useTranslateStore } from '../stores/translateStore';
 import { useSettingsStore } from '../stores/settingsStore';
 import { snackbar } from '../stores/snackbarStore';
+import HistoryDrawer from '../components/HistoryDrawer';
+import type { TranslationHistoryItem } from '../stores/historyStore';
 
 export default function TranslatePage() {
   const { t } = useTranslation();
   const { openSettings } = useSettingsStore();
+  const [historyOpen, setHistoryOpen] = useState(false);
 
   const {
     models,
@@ -43,10 +47,17 @@ export default function TranslatePage() {
     loadModels,
     setSelectedModel,
     setSourceText,
+    setTranslatedText,
     translate,
     stopTranslation,
     clearTranslation,
   } = useTranslateStore();
+
+  // 히스토리에서 선택한 항목 불러오기
+  const handleSelectHistory = (item: TranslationHistoryItem) => {
+    setSourceText(item.sourceText);
+    setTranslatedText(item.translatedText);
+  };
 
   // 최초 접속 시 모델 목록 불러오기
   useEffect(() => {
@@ -118,6 +129,12 @@ export default function TranslatePage() {
               {t('translate.subtitle')}
             </Typography>
           </Box>
+          {/* 히스토리 버튼 */}
+          <Tooltip title={t('history.title')}>
+            <IconButton onClick={() => setHistoryOpen(true)} size='large'>
+              <HistoryIcon />
+            </IconButton>
+          </Tooltip>
           {/* 설정 버튼 */}
           <Tooltip title={t('settings.title')}>
             <IconButton onClick={openSettings} size='large'>
@@ -364,6 +381,13 @@ export default function TranslatePage() {
           )}
         </Box>
       </Box>
+
+      {/* 히스토리 Drawer */}
+      <HistoryDrawer
+        open={historyOpen}
+        onClose={() => setHistoryOpen(false)}
+        onSelectHistory={handleSelectHistory}
+      />
     </Container>
   );
 }

@@ -5,9 +5,47 @@
 import { create } from 'zustand';
 import i18n from '../i18n';
 import type { OllamaModel } from '../types/ollama';
-import { fetchModels, streamChat } from '../api/ollamaApi';
+import { fetchModels, streamChat, generate } from '../api/ollamaApi';
 import { buildTranslationMessages } from '../utils/promptBuilder';
 import { snackbar } from './snackbarStore';
+import { useHistoryStore } from './historyStore';
+
+/**
+ * 번역 내용 기반 제목 생성 (백그라운드)
+ */
+async function generateTitleInBackground(
+  historyId: string,
+  sourceText: string,
+  translatedText: string,
+  modelName: string,
+) {
+  try {
+    const prompt = `Generate a very short title that summarizes this translation. Output ONLY the title, nothing else.
+
+Original: ${sourceText.slice(0, 200)}
+Translation: ${translatedText.slice(0, 200)}
+
+Title:`;
+
+    const response = await generate({
+      model: modelName,
+      prompt,
+    });
+
+    // 응답에서 제목 추출 (줄바꿈, 따옴표 제거 및 길이 제한)
+    const title = response.response
+      .trim()
+      .replace(/^["']|["']$/g, '') // 따옴표 제거
+      .split('\n')[0] // 첫 줄만
+      .slice(0, 100); 
+
+    if (title) {
+      useHistoryStore.getState().updateHistoryTitle(historyId, title);
+    }
+  } catch {
+    // 제목 생성 실패는 조용히 무시 (핵심 기능이 아님)
+  }
+}
 
 interface TranslateState {
   // 모델 관련
@@ -27,6 +65,7 @@ interface TranslateState {
   loadModels: () => Promise<void>;
   setSelectedModel: (model: string) => void;
   setSourceText: (text: string) => void;
+  setTranslatedText: (text: string) => void;
   translate: () => Promise<void>;
   stopTranslation: () => void;
   clearTranslation: () => void;
@@ -78,6 +117,11 @@ export const useTranslateStore = create<TranslateState>((set, get) => ({
     set({ sourceText: text });
   },
 
+  // 번역문 직접 설정 (히스토리에서 불러올 때 사용)
+  setTranslatedText: (text: string) => {
+    set({ translatedText: text });
+  },
+
   // 번역 실행
   translate: async () => {
     const { sourceText, selectedModel, isTranslating } = get();
@@ -125,6 +169,19 @@ export const useTranslateStore = create<TranslateState>((set, get) => ({
         },
         abortController.signal,
       );
+
+      // 번역 완료 시 히스토리에 저장
+      const finalTranslatedText = get().translatedText;
+      if (finalTranslatedText.trim()) {
+        const historyId = useHistoryStore.getState().addHistory({
+          sourceText,
+          translatedText: finalTranslatedText,
+          modelName: selectedModel,
+        });
+
+        // 백그라운드에서 제목 생성 (UI 블로킹 없음)
+        generateTitleInBackground(historyId, sourceText, finalTranslatedText, selectedModel);
+      }
     } catch (error) {
       // 사용자가 중단한 경우
       if (error instanceof Error && error.name === 'AbortError') {
