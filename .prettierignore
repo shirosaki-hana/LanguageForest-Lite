@@ -1,0 +1,11 @@
+# Directories to ignore (any location)
+**/dist/
+**/node_modules/
+**/public/
+
+# Logs and env files
+*.log
+.env*
+
+# Lock files
+pnpm-lock.yaml

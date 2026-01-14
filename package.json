@@ -4,7 +4,11 @@
   "version": "1.0.0",
   "type": "module",
   "description": "ollama-translate",
-  "keywords": ["llm", "translate", "ollama"],
+  "keywords": [
+    "llm",
+    "translate",
+    "ollama"
+  ],
   "author": "shirosaki-hana",
   "license": "MIT",
   "scripts": {
@@ -13,8 +17,7 @@
     "build:debug": "pnpm clean && tsc -b && vite build --mode debug",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "format": "prettier --write",
-    "format:check": "prettier --check",
+    "format": "prettier -w .",
     "preview": "vite preview",
     "clean": "rimraf dist"
   },

@@ -82,4 +82,3 @@ export default function WelcomePage() {
     </Container>
   );
 }
-
