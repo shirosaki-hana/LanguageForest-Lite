@@ -35,7 +35,7 @@ export default defineConfig(({ mode }) => {
     ],
     build: {
       target: 'es2023',
-      chunkSizeWarningLimit: 900,
+      chunkSizeWarningLimit: 500,
       sourcemap: isDebug, // debug 모드에서 소스맵 생성
       minify: !isDebug, // debug 모드에서 난독화 비활성화
       rollupOptions: {
@@ -51,8 +51,6 @@ export default defineConfig(({ mode }) => {
               packageName === 'react' ||
               packageName === 'react-dom' ||
               packageName === 'scheduler' ||
-              packageName === 'react-router-dom' ||
-              packageName === 'react-router' ||
               packageName === 'react-i18next' ||
               packageName === 'use-sync-external-store' ||
               packageName.startsWith('@mui/') ||
@@ -84,7 +82,7 @@ export default defineConfig(({ mode }) => {
     server: {
       proxy: {
         '/api': {
-          target: 'http://localhost:4001',
+          target: 'http://localhost:9001',
           changeOrigin: true,
           secure: false,
         },

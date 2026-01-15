@@ -1,14 +1,16 @@
 import { Box } from '@mui/material';
-import { Outlet } from 'react-router-dom';
+import type { ReactNode } from 'react';
 import SettingsDialog from './SettingsDialog';
 import DictionaryDialog from './DictionaryDialog';
 
-export default function Layout() {
+interface LayoutProps {
+  children: ReactNode;
+}
+
+export default function Layout({ children }: LayoutProps) {
   return (
     <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-        <Outlet />
-      </Box>
+      <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>{children}</Box>
       <SettingsDialog />
       <DictionaryDialog />
     </Box>

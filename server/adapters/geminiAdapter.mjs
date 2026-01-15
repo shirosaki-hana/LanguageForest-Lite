@@ -1,4 +1,33 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/generative-ai';
+
+/**
+ * Gemini 모델 설정 (필요시 수정)
+ */
+const GENERATION_CONFIG = {
+  temperature: 1.0, // 0.0 ~ 2.0 (높을수록 창의적, 낮을수록 일관적)
+  topP: 0.95, // nucleus sampling
+  topK: 40, // top-k sampling
+  maxOutputTokens: 8192, // 최대 출력 토큰
+};
+
+const SAFETY_SETTINGS = [
+  {
+    category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+    threshold: HarmBlockThreshold.BLOCK_NONE,
+  },
+  {
+    category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+    threshold: HarmBlockThreshold.BLOCK_NONE,
+  },
+  {
+    category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+    threshold: HarmBlockThreshold.BLOCK_NONE,
+  },
+  {
+    category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+    threshold: HarmBlockThreshold.BLOCK_NONE,
+  },
+];
 
 /**
  * Gemini Adapter - Ollama 형식 요청을 Gemini API로 변환
@@ -9,7 +38,7 @@ export class GeminiAdapter {
       throw new Error('GEMINI_API_KEY is required for Gemini adapter');
     }
     this.genAI = new GoogleGenerativeAI(config.apiKey);
-    this.defaultModel = config.model || 'gemini-2.0-flash';
+    this.defaultModel = config.model || 'gemini-2.5-flash';
   }
 
   /**
@@ -76,6 +105,8 @@ export class GeminiAdapter {
     const model = this.genAI.getGenerativeModel({
       model: modelName,
       systemInstruction: systemInstruction || undefined,
+      generationConfig: GENERATION_CONFIG,
+      safetySettings: SAFETY_SETTINGS,
     });
 
     // 스트리밍 응답 헤더 설정
@@ -166,6 +197,8 @@ export class GeminiAdapter {
     const model = this.genAI.getGenerativeModel({
       model: modelName,
       systemInstruction: body.system || undefined,
+      generationConfig: GENERATION_CONFIG,
+      safetySettings: SAFETY_SETTINGS,
     });
 
     const contents = [
