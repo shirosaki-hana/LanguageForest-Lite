@@ -12,6 +12,11 @@ export interface TranslationHistoryItem {
   translatedText: string;
   modelName: string;
   createdAt: number;
+  // 토큰 카운트 정보 (기존 히스토리 호환을 위해 optional)
+  tokenCounts?: {
+    promptTokens: number;
+    completionTokens: number;
+  } | null;
 }
 
 interface HistoryState {

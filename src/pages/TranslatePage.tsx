@@ -7,12 +7,14 @@ import type { TranslationHistoryItem } from '../stores/historyStore';
 
 export default function TranslatePage() {
   const [historyOpen, setHistoryOpen] = useState(false);
-  const { loadModels, setSourceText, setTranslatedText } = useTranslateStore();
+  const { loadModels, setSourceText, setTranslatedText, setTokenCounts } = useTranslateStore();
 
   // 히스토리에서 선택한 항목 불러오기
   const handleSelectHistory = (item: TranslationHistoryItem) => {
     setSourceText(item.sourceText);
     setTranslatedText(item.translatedText);
+    // 토큰 카운트도 복원 (기존 히스토리에 없으면 null)
+    setTokenCounts(item.tokenCounts ?? null);
   };
 
   // 최초 접속 시 모델 목록 불러오기

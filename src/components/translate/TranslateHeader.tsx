@@ -1,9 +1,7 @@
 import { useTranslation } from 'react-i18next';
-import { Box, Stack, Typography, IconButton, Tooltip, FormControl, Select, MenuItem, CircularProgress } from '@mui/material';
+import { Box, Stack, Typography, IconButton, Tooltip } from '@mui/material';
 import { Translate as TranslateIcon, Settings as SettingsIcon, History as HistoryIcon } from '@mui/icons-material';
 import { useSettingsStore } from '../../stores/settingsStore';
-import { useTranslateStore } from '../../stores/translateStore';
-import { LANGUAGE_PAIRS } from '../../config/languagePairs';
 
 interface TranslateHeaderProps {
   onHistoryClick: () => void;
@@ -12,8 +10,6 @@ interface TranslateHeaderProps {
 export default function TranslateHeader({ onHistoryClick }: TranslateHeaderProps) {
   const { t } = useTranslation();
   const { openSettings } = useSettingsStore();
-  const { models, selectedModel, isLoadingModels, isTranslating, setSelectedModel, selectedPairId, setSelectedPairId } =
-    useTranslateStore();
 
   return (
     <Stack
@@ -30,7 +26,7 @@ export default function TranslateHeader({ onHistoryClick }: TranslateHeaderProps
         flexShrink: 0,
       })}
     >
-      {/* 앱 로고 + 타이틀 (간소화) */}
+      {/* 앱 로고 + 타이틀 */}
       <Box
         sx={{
           width: 32,
@@ -57,58 +53,6 @@ export default function TranslateHeader({ onHistoryClick }: TranslateHeaderProps
       >
         {t('common.appName')}
       </Typography>
-
-      {/* 언어쌍 선택 */}
-      <FormControl size='small' sx={{ minWidth: 150, ml: 1 }}>
-        <Select
-          value={selectedPairId}
-          onChange={e => setSelectedPairId(e.target.value)}
-          disabled={isTranslating}
-          sx={{
-            '& .MuiSelect-select': {
-              py: 0.75,
-              fontSize: '0.875rem',
-            },
-          }}
-        >
-          {LANGUAGE_PAIRS.map(pair => (
-            <MenuItem key={pair.id} value={pair.id}>
-              {pair.label}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-
-      {/* 모델 선택 (인라인) */}
-      <FormControl size='small' sx={{ minWidth: 180 }}>
-        <Select
-          value={selectedModel}
-          onChange={e => setSelectedModel(e.target.value)}
-          disabled={isLoadingModels || isTranslating}
-          displayEmpty
-          sx={{
-            '& .MuiSelect-select': {
-              py: 0.75,
-              fontSize: '0.875rem',
-            },
-          }}
-        >
-          {isLoadingModels ? (
-            <MenuItem disabled>
-              <CircularProgress size={14} sx={{ mr: 1 }} />
-              {t('translate.modelLoading')}
-            </MenuItem>
-          ) : models.length === 0 ? (
-            <MenuItem disabled>{t('translate.noModels')}</MenuItem>
-          ) : (
-            models.map(model => (
-              <MenuItem key={model.name} value={model.name}>
-                {model.name}
-              </MenuItem>
-            ))
-          )}
-        </Select>
-      </FormControl>
 
       {/* 스페이서 */}
       <Box sx={{ flex: 1 }} />

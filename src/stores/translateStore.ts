@@ -71,6 +71,7 @@ interface TranslateState {
   setSelectedPairId: (pairId: string) => void;
   setSourceText: (text: string) => void;
   setTranslatedText: (text: string) => void;
+  setTokenCounts: (counts: { promptTokens: number; completionTokens: number } | null) => void;
   translate: () => Promise<void>;
   stopTranslation: () => void;
   clearTranslation: () => void;
@@ -134,6 +135,11 @@ export const useTranslateStore = create<TranslateState>((set, get) => ({
   // 번역문 직접 설정 (히스토리에서 불러올 때 사용)
   setTranslatedText: (text: string) => {
     set({ translatedText: text });
+  },
+
+  // 토큰 카운트 직접 설정 (히스토리에서 불러올 때 사용)
+  setTokenCounts: (counts: { promptTokens: number; completionTokens: number } | null) => {
+    set({ tokenCounts: counts });
   },
 
   // 번역 실행
@@ -211,6 +217,7 @@ export const useTranslateStore = create<TranslateState>((set, get) => ({
           sourceText,
           translatedText: finalTranslatedText,
           modelName: selectedModel,
+          tokenCounts: get().tokenCounts,
         });
 
         // 백그라운드에서 제목 생성 (UI 블로킹 없음)

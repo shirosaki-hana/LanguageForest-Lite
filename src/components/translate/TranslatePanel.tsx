@@ -1,9 +1,25 @@
 import { useRef, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Box, Paper, Stack, Typography, TextField, Button, IconButton, CircularProgress, Tooltip, Divider, Chip } from '@mui/material';
+import {
+  Box,
+  Paper,
+  Stack,
+  Typography,
+  TextField,
+  Button,
+  IconButton,
+  CircularProgress,
+  Tooltip,
+  Divider,
+  Chip,
+  FormControl,
+  Select,
+  MenuItem,
+} from '@mui/material';
 import { Translate as TranslateIcon, ContentCopy as CopyIcon, Clear as ClearIcon, Stop as StopIcon } from '@mui/icons-material';
 import { useTranslateStore } from '../../stores/translateStore';
 import { snackbar } from '../../stores/snackbarStore';
+import { LANGUAGE_PAIRS } from '../../config/languagePairs';
 
 export default function TranslatePanel() {
   const { t } = useTranslation();
@@ -19,7 +35,11 @@ export default function TranslatePanel() {
     selectedModel,
     isLoadingModels,
     tokenCounts,
+    models,
+    selectedPairId,
     setSourceText,
+    setSelectedModel,
+    setSelectedPairId,
     translate,
     stopTranslation,
     clearTranslation,
@@ -135,6 +155,109 @@ export default function TranslatePanel() {
           minHeight: 0,
         })}
       >
+        {/* 컨트롤 바 - 언어쌍, 모델 선택, 번역 버튼 */}
+        <Box
+          sx={{
+            px: 2,
+            py: 1.5,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: 2,
+            borderBottom: theme => `1px solid ${theme.palette.divider}`,
+            flexShrink: 0,
+            flexWrap: 'wrap',
+          }}
+        >
+          {/* 언어쌍 선택 */}
+          <FormControl size='small'>
+            <Select
+              value={selectedPairId}
+              onChange={e => setSelectedPairId(e.target.value)}
+              disabled={isTranslating}
+              sx={{
+                minWidth: 180,
+                '& .MuiSelect-select': {
+                  py: 0.75,
+                  px: 2,
+                  fontSize: '0.9rem',
+                  fontWeight: 500,
+                  textAlign: 'center',
+                },
+                '& .MuiOutlinedInput-notchedOutline': {
+                  borderColor: 'divider',
+                },
+                '&:hover .MuiOutlinedInput-notchedOutline': {
+                  borderColor: 'primary.main',
+                },
+              }}
+            >
+              {LANGUAGE_PAIRS.map(pair => (
+                <MenuItem key={pair.id} value={pair.id}>
+                  {pair.label}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          {/* 모델 선택 */}
+          <FormControl size='small' sx={{ minWidth: 160 }}>
+            <Select
+              value={selectedModel}
+              onChange={e => setSelectedModel(e.target.value)}
+              disabled={isLoadingModels || isTranslating}
+              displayEmpty
+              sx={{
+                '& .MuiSelect-select': {
+                  py: 0.75,
+                  fontSize: '0.875rem',
+                },
+              }}
+            >
+              {isLoadingModels ? (
+                <MenuItem disabled>
+                  <CircularProgress size={14} sx={{ mr: 1 }} />
+                  {t('translate.modelLoading')}
+                </MenuItem>
+              ) : models.length === 0 ? (
+                <MenuItem disabled>{t('translate.noModels')}</MenuItem>
+              ) : (
+                models.map(model => (
+                  <MenuItem key={model.name} value={model.name}>
+                    {model.name}
+                  </MenuItem>
+                ))
+              )}
+            </Select>
+          </FormControl>
+
+          {/* 번역 버튼 */}
+          {isTranslating ? (
+            <Button variant='outlined' color='error' onClick={stopTranslation} startIcon={<StopIcon />} sx={{ minWidth: 120 }}>
+              {t('translate.stopButton')}
+            </Button>
+          ) : (
+            <Button
+              variant='contained'
+              onClick={translate}
+              disabled={!sourceText.trim() || !selectedModel || isLoadingModels}
+              startIcon={<TranslateIcon />}
+              sx={{
+                minWidth: 120,
+                background: 'linear-gradient(135deg, #2563eb, #7c3aed)',
+                '&:hover': {
+                  background: 'linear-gradient(135deg, #1d4ed8, #6d28d9)',
+                },
+                '&:disabled': {
+                  background: 'none',
+                },
+              }}
+            >
+              {t('translate.translateButton')}
+            </Button>
+          )}
+        </Box>
+
         {/* 입력/출력 영역 */}
         <Stack
           direction={{ xs: 'column', md: 'row' }}
@@ -333,45 +456,6 @@ export default function TranslatePanel() {
           </Box>
         </Stack>
       </Paper>
-
-      {/* 번역 버튼 바 */}
-      <Box
-        sx={theme => ({
-          py: 1.5,
-          px: 2,
-          display: 'flex',
-          justifyContent: 'center',
-          borderTop: '1px solid',
-          borderColor: 'divider',
-          bgcolor: theme.palette.mode === 'light' ? 'rgba(255,255,255,0.8)' : 'rgba(2,6,23,0.7)',
-          flexShrink: 0,
-        })}
-      >
-        {isTranslating ? (
-          <Button variant='outlined' color='error' onClick={stopTranslation} startIcon={<StopIcon />} sx={{ minWidth: 160 }}>
-            {t('translate.stopButton')}
-          </Button>
-        ) : (
-          <Button
-            variant='contained'
-            onClick={translate}
-            disabled={!sourceText.trim() || !selectedModel || isLoadingModels}
-            startIcon={<TranslateIcon />}
-            sx={{
-              minWidth: 160,
-              background: 'linear-gradient(135deg, #2563eb, #7c3aed)',
-              '&:hover': {
-                background: 'linear-gradient(135deg, #1d4ed8, #6d28d9)',
-              },
-              '&:disabled': {
-                background: 'none',
-              },
-            }}
-          >
-            {t('translate.translateButton')}
-          </Button>
-        )}
-      </Box>
     </Box>
   );
 }
