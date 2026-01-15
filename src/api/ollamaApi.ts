@@ -79,7 +79,6 @@ export async function streamChat(
             onChunk(chunk);
           } catch {
             // 파싱 실패 시 무시
-            console.warn('청크 파싱 실패:', line);
           }
         }
       }
@@ -91,7 +90,7 @@ export async function streamChat(
         const chunk: OllamaChatStreamChunk = JSON.parse(buffer);
         onChunk(chunk);
       } catch {
-        console.warn('마지막 청크 파싱 실패:', buffer);
+        // 남은 버퍼 처리 실패 시 무시
       }
     }
   } finally {

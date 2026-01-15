@@ -1,6 +1,7 @@
 import { Box } from '@mui/material';
 import { Outlet } from 'react-router-dom';
 import SettingsDialog from './SettingsDialog';
+import DictionaryDialog from './DictionaryDialog';
 
 export default function Layout() {
   return (
@@ -9,6 +10,7 @@ export default function Layout() {
         <Outlet />
       </Box>
       <SettingsDialog />
+      <DictionaryDialog />
     </Box>
   );
 }

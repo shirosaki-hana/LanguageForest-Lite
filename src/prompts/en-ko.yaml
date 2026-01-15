@@ -57,7 +57,7 @@ messages:
 
   # 응답 시작 유도 (prefill)
   - role: assistant
-    content: "<!-- Start of translation -->"
+    content: '<!-- Start of translation -->'
 
 # 기본 딕셔너리 항목 (런타임에 오버라이드 가능)
 defaultDictionary:

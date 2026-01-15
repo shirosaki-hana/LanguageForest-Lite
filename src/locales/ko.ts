@@ -48,6 +48,18 @@ export default {
       clearConfirm: '모든 번역 히스토리를 삭제하시겠습니까?',
     },
 
+    // Dictionary
+    dictionary: {
+      title: '딕셔너리',
+      defaultDictionary: '기본 딕셔너리 (읽기 전용)',
+      userDictionary: '내 딕셔너리',
+      userDictionaryDescription: '번역 시 기본 딕셔너리와 함께 적용됩니다.',
+      fromPlaceholder: '원문 표현',
+      toPlaceholder: '번역 표현',
+      addEntry: '항목 추가',
+      empty: '등록된 항목이 없습니다.',
+    },
+
     // Translate
     translate: {
       subtitle: '로컬 LLM으로 프라이버시를 지키는 번역',

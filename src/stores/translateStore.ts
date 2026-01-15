@@ -6,9 +6,10 @@ import { create } from 'zustand';
 import i18n from '../i18n';
 import type { OllamaModel } from '../types/ollama';
 import { fetchModels, streamChat, generate } from '../api/ollamaApi';
-import { buildTranslationMessages, DEFAULT_PAIR_ID } from '../utils/promptBuilder';
+import { buildTranslationMessages, getPromptTemplate, DEFAULT_PAIR_ID } from '../utils/promptBuilder';
 import { snackbar } from './snackbarStore';
 import { useHistoryStore } from './historyStore';
+import { useDictionaryStore } from './dictionaryStore';
 
 /**
  * 번역 내용 기반 제목 생성 (백그라운드)
@@ -171,7 +172,14 @@ export const useTranslateStore = create<TranslateState>((set, get) => ({
     });
 
     try {
-      const messages = buildTranslationMessages(sourceText, selectedPairId);
+      // 기본 딕셔너리 + 사용자 딕셔너리 병합
+      const template = getPromptTemplate(selectedPairId);
+      const userDictionary = useDictionaryStore.getState().getUserDictionary(selectedPairId);
+      const mergedDictionary = [...template.defaultDictionary, ...userDictionary];
+
+      const messages = buildTranslationMessages(sourceText, selectedPairId, {
+        dictionary: mergedDictionary,
+      });
 
       await streamChat(
         {

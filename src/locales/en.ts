@@ -48,6 +48,18 @@ export default {
       clearConfirm: 'Are you sure you want to clear all translation history?',
     },
 
+    // Dictionary
+    dictionary: {
+      title: 'Dictionary',
+      defaultDictionary: 'Default Dictionary (Read Only)',
+      userDictionary: 'My Dictionary',
+      userDictionaryDescription: 'Applied together with the default dictionary during translation.',
+      fromPlaceholder: 'Source expression',
+      toPlaceholder: 'Target expression',
+      addEntry: 'Add Entry',
+      empty: 'No entries registered.',
+    },
+
     // Translate
     translate: {
       subtitle: 'Privacy-preserving translation with local LLM',

@@ -16,8 +16,15 @@ import {
   Select,
   MenuItem,
 } from '@mui/material';
-import { Translate as TranslateIcon, ContentCopy as CopyIcon, Clear as ClearIcon, Stop as StopIcon } from '@mui/icons-material';
+import {
+  Translate as TranslateIcon,
+  ContentCopy as CopyIcon,
+  Clear as ClearIcon,
+  Stop as StopIcon,
+  MenuBook as DictionaryIcon,
+} from '@mui/icons-material';
 import { useTranslateStore } from '../../stores/translateStore';
+import { useDictionaryStore } from '../../stores/dictionaryStore';
 import { snackbar } from '../../stores/snackbarStore';
 import { getLanguagePairs } from '../../utils/promptBuilder';
 
@@ -44,6 +51,8 @@ export default function TranslatePanel() {
     stopTranslation,
     clearTranslation,
   } = useTranslateStore();
+
+  const { openDialog: openDictionaryDialog } = useDictionaryStore();
 
   // 원문 텍스트 카운트 계산
   const sourceStats = useMemo(() => {
@@ -199,6 +208,25 @@ export default function TranslatePanel() {
               ))}
             </Select>
           </FormControl>
+
+          {/* 딕셔너리 버튼 */}
+          <Tooltip title={t('dictionary.title')}>
+            <IconButton
+              size='small'
+              onClick={() => openDictionaryDialog(selectedPairId)}
+              disabled={isTranslating}
+              sx={{
+                border: 1,
+                borderColor: 'divider',
+                '&:hover': {
+                  borderColor: 'primary.main',
+                  bgcolor: 'action.hover',
+                },
+              }}
+            >
+              <DictionaryIcon fontSize='small' />
+            </IconButton>
+          </Tooltip>
 
           {/* 모델 선택 */}
           <FormControl size='small' sx={{ minWidth: 160 }}>
