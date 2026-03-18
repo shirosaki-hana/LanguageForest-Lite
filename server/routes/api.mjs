@@ -75,27 +75,6 @@ export default async function apiRoutes(fastify, options) {
   });
 
   /**
-   * POST /api/generate - 텍스트 생성 (스트리밍)
-   */
-  fastify.post('/api/generate', async (request, reply) => {
-    if (testMode) {
-      return handleTestMode(request, reply);
-    }
-
-    try {
-      await adapter.generate(request.body, reply);
-    } catch (error) {
-      fastify.log.error('Generate error:', error);
-      if (!reply.raw.headersSent) {
-        return reply.code(502).send({
-          error: 'Failed to process generate request',
-          details: error.message,
-        });
-      }
-    }
-  });
-
-  /**
    * 기타 /api/* 요청은 Ollama 어댑터일 때만 프록시
    * (Gemini는 지원하지 않는 엔드포인트)
    */
@@ -115,7 +94,7 @@ export default async function apiRoutes(fastify, options) {
     // Ollama 어댑터: 직접 프록시 (fallback)
     return reply.code(404).send({
       error: 'Unknown endpoint',
-      message: 'Use /api/tags, /api/chat, or /api/generate',
+      message: 'Use /api/tags or /api/chat',
     });
   });
 }

@@ -2,13 +2,7 @@
  * Ollama API 레이어
  */
 
-import type {
-  OllamaTagsResponse,
-  OllamaChatRequest,
-  OllamaChatStreamChunk,
-  OllamaGenerateRequest,
-  OllamaGenerateResponse,
-} from '../types/ollama';
+import type { OllamaTagsResponse, OllamaChatRequest, OllamaChatStreamChunk } from '../types/ollama';
 
 const API_BASE = '/api';
 
@@ -96,27 +90,4 @@ export async function streamChat(
   } finally {
     reader.releaseLock();
   }
-}
-
-/**
- * 텍스트 생성 요청 (스트리밍 없이)
- * @param request 생성 요청 데이터
- */
-export async function generate(request: OllamaGenerateRequest): Promise<OllamaGenerateResponse> {
-  const response = await fetch(`${API_BASE}/generate`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      ...request,
-      stream: false,
-    }),
-  });
-
-  if (!response.ok) {
-    throw new Error(`생성 요청 실패: ${response.status}`);
-  }
-
-  return response.json();
 }

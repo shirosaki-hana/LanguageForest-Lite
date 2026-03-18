@@ -7,7 +7,6 @@ import { persist } from 'zustand/middleware';
 
 export interface TranslationHistoryItem {
   id: string;
-  title?: string; // LLM이 생성한 제목 (비동기로 추가됨)
   sourceText: string;
   translatedText: string;
   modelName: string;
@@ -25,7 +24,6 @@ interface HistoryState {
 
   // 액션
   addHistory: (item: Omit<TranslationHistoryItem, 'id' | 'createdAt'>) => string; // 생성된 id 반환
-  updateHistoryTitle: (id: string, title: string) => void;
   removeHistory: (id: string) => void;
   clearHistory: () => void;
 }
@@ -53,13 +51,6 @@ export const useHistoryStore = create<HistoryState>()(
         });
 
         return id;
-      },
-
-      // 히스토리 제목 업데이트
-      updateHistoryTitle: (id, title) => {
-        set(state => ({
-          history: state.history.map(item => (item.id === id ? { ...item, title } : item)),
-        }));
       },
 
       // 특정 히스토리 삭제

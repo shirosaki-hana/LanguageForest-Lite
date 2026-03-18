@@ -5,42 +5,11 @@
 import { create } from 'zustand';
 import i18n from '../i18n';
 import type { OllamaModel } from '../types/ollama';
-import { fetchModels, streamChat, generate } from '../api/ollamaApi';
+import { fetchModels, streamChat } from '../api/ollamaApi';
 import { buildTranslationMessages, getPromptTemplate, DEFAULT_PAIR_ID } from '../utils/promptBuilder';
 import { snackbar } from './snackbarStore';
 import { useHistoryStore } from './historyStore';
 import { useDictionaryStore } from './dictionaryStore';
-
-/**
- * 번역 내용 기반 제목 생성 (백그라운드)
- */
-async function generateTitleInBackground(historyId: string, sourceText: string, modelName: string) {
-  try {
-    const prompt = `Create a short title for the text below. Output ONLY the title, nothing else.
-***
-${sourceText.slice(0, 1000)}
-***
-Title:`;
-
-    const response = await generate({
-      model: modelName,
-      prompt,
-    });
-
-    // 응답에서 제목 추출 (줄바꿈, 따옴표 제거 및 길이 제한)
-    const title = response.response
-      .trim()
-      .replace(/^["']|["']$/g, '') // 따옴표 제거
-      .split('\n')[0] // 첫 줄만
-      .slice(0, 100);
-
-    if (title) {
-      useHistoryStore.getState().updateHistoryTitle(historyId, title);
-    }
-  } catch {
-    // 제목 생성 실패는 조용히 무시 (핵심 기능이 아님)
-  }
-}
 
 interface TranslateState {
   // 모델 관련
@@ -220,15 +189,12 @@ export const useTranslateStore = create<TranslateState>((set, get) => ({
 
       // 히스토리에 저장
       if (finalTranslatedText.trim()) {
-        const historyId = useHistoryStore.getState().addHistory({
+        useHistoryStore.getState().addHistory({
           sourceText,
           translatedText: finalTranslatedText,
           modelName: selectedModel,
           tokenCounts: get().tokenCounts,
         });
-
-        // 백그라운드에서 제목 생성 (UI 블로킹 없음)
-        generateTitleInBackground(historyId, sourceText, selectedModel);
       }
     } catch (error) {
       // 사용자가 중단한 경우

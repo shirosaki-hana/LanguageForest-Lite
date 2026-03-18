@@ -48,6 +48,7 @@ export class GeminiAdapter {
   async listModels() {
     // Gemini API는 모델 목록 API가 제한적이므로 하드코딩된 목록 반환
     const geminiModels = [
+      { name: 'gemini-3-flash-preview', size: 'Medium', family: 'Gemini 3' },
       { name: 'gemini-2.5-flash', size: 'Medium', family: 'Gemini 2.5' },
       { name: 'gemini-2.0-flash', size: 'Medium', family: 'Gemini 2.0' },
       { name: 'gemini-2.0-flash-lite', size: 'Small', family: 'Gemini 2.0' },
@@ -175,94 +176,6 @@ export class GeminiAdapter {
       console.error('Gemini API error:', error);
 
       // 에러를 Ollama 형식으로 반환
-      const errorResponse = {
-        error: error.message || 'Gemini API request failed',
-      };
-
-      if (!reply.raw.headersSent) {
-        reply.raw.writeHead(500, { 'Content-Type': 'application/json' });
-      }
-      reply.raw.write(JSON.stringify(errorResponse));
-      reply.raw.end();
-    }
-  }
-
-  /**
-   * 텍스트 생성 (POST /api/generate)
-   * Ollama generate 형식으로 응답 (response 필드 사용)
-   */
-  async generate(body, reply) {
-    const modelName = body.model || this.defaultModel;
-
-    const model = this.genAI.getGenerativeModel({
-      model: modelName,
-      systemInstruction: body.system || undefined,
-      generationConfig: GENERATION_CONFIG,
-      safetySettings: SAFETY_SETTINGS,
-    });
-
-    const contents = [
-      {
-        role: 'user',
-        parts: [{ text: body.prompt }],
-      },
-    ];
-
-    // 스트리밍 응답 헤더 설정
-    reply.raw.writeHead(200, {
-      'Content-Type': 'application/x-ndjson',
-      'Transfer-Encoding': 'chunked',
-      'Cache-Control': 'no-cache',
-      Connection: 'keep-alive',
-    });
-
-    try {
-      if (body.stream === false) {
-        // 비스트리밍 모드
-        const result = await model.generateContent({ contents });
-        const text = result.response.text();
-
-        // Ollama generate 형식: response 필드 사용
-        const ollamaResponse = {
-          model: modelName,
-          created_at: new Date().toISOString(),
-          response: text,
-          done: true,
-        };
-
-        reply.raw.write(JSON.stringify(ollamaResponse) + '\n');
-        reply.raw.end();
-      } else {
-        // 스트리밍 모드
-        const result = await model.generateContentStream({ contents });
-
-        for await (const chunk of result.stream) {
-          const text = chunk.text();
-          if (text) {
-            // Ollama generate 스트리밍 형식: response 필드 사용
-            const ollamaChunk = {
-              model: modelName,
-              created_at: new Date().toISOString(),
-              response: text,
-              done: false,
-            };
-            reply.raw.write(JSON.stringify(ollamaChunk) + '\n');
-          }
-        }
-
-        // 완료 메시지
-        const doneChunk = {
-          model: modelName,
-          created_at: new Date().toISOString(),
-          response: '',
-          done: true,
-        };
-        reply.raw.write(JSON.stringify(doneChunk) + '\n');
-        reply.raw.end();
-      }
-    } catch (error) {
-      console.error('Gemini API error:', error);
-
       const errorResponse = {
         error: error.message || 'Gemini API request failed',
       };

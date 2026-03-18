@@ -4,7 +4,7 @@
 
 import { useTranslation } from 'react-i18next';
 import { Drawer, Box, Typography, IconButton, List, ListItemButton, ListItemText, Stack, Divider, Tooltip } from '@mui/material';
-import { Close as CloseIcon, Delete as DeleteIcon, DeleteSweep as ClearAllIcon, AutoAwesome as AutoAwesomeIcon } from '@mui/icons-material';
+import { Close as CloseIcon, Delete as DeleteIcon, DeleteSweep as ClearAllIcon } from '@mui/icons-material';
 import { useHistoryStore, type TranslationHistoryItem } from '../stores/historyStore';
 import { useDialogStore } from '../stores/dialogStore';
 
@@ -124,21 +124,17 @@ export default function HistoryDrawer({ open, onClose, onSelectHistory }: Histor
                   >
                     <ListItemText
                       primary={
-                        <Stack direction='row' alignItems='center' spacing={0.5}>
-                          {item.title && <AutoAwesomeIcon sx={{ fontSize: 14, color: 'primary.main', flexShrink: 0 }} />}
-                          <Typography
-                            variant='body2'
-                            sx={{
-                              fontWeight: 600,
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis',
-                              whiteSpace: 'nowrap',
-                              color: item.title ? 'primary.main' : 'text.primary',
-                            }}
-                          >
-                            {item.title || truncateText(item.sourceText, 30)}
-                          </Typography>
-                        </Stack>
+                        <Typography
+                          variant='body2'
+                          sx={{
+                            fontWeight: 600,
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                          }}
+                        >
+                          {truncateText(item.sourceText, 30)}
+                        </Typography>
                       }
                       secondary={
                         <Stack spacing={0.5} sx={{ mt: 0.5 }}>
